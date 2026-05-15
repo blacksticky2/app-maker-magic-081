@@ -9,38 +9,248 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AuthenticatedSettingsRouteImport } from './routes/_authenticated/settings'
+import { Route as AuthenticatedRewardsRouteImport } from './routes/_authenticated/rewards'
+import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
+import { Route as AuthenticatedNotificationsRouteImport } from './routes/_authenticated/notifications'
+import { Route as AuthenticatedInventoryRouteImport } from './routes/_authenticated/inventory'
+import { Route as AuthenticatedGroceryRouteImport } from './routes/_authenticated/grocery'
+import { Route as AuthenticatedFuelRouteImport } from './routes/_authenticated/fuel'
+import { Route as AuthenticatedDashboardRouteImport } from './routes/_authenticated/dashboard'
+import { Route as AuthenticatedChoresRouteImport } from './routes/_authenticated/chores'
+import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
+import { Route as AuthenticatedFamilyIndexRouteImport } from './routes/_authenticated/family.index'
+import { Route as AuthenticatedDmIndexRouteImport } from './routes/_authenticated/dm.index'
+import { Route as AuthenticatedFamilyInviteRouteImport } from './routes/_authenticated/family.invite'
+import { Route as AuthenticatedDmUserIdRouteImport } from './routes/_authenticated/dm.$userId'
 
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AuthenticatedSettingsRoute = AuthenticatedSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedRewardsRoute = AuthenticatedRewardsRouteImport.update({
+  id: '/rewards',
+  path: '/rewards',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedNotificationsRoute =
+  AuthenticatedNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedInventoryRoute = AuthenticatedInventoryRouteImport.update({
+  id: '/inventory',
+  path: '/inventory',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedGroceryRoute = AuthenticatedGroceryRouteImport.update({
+  id: '/grocery',
+  path: '/grocery',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedFuelRoute = AuthenticatedFuelRouteImport.update({
+  id: '/fuel',
+  path: '/fuel',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedDashboardRoute = AuthenticatedDashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedChoresRoute = AuthenticatedChoresRouteImport.update({
+  id: '/chores',
+  path: '/chores',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedChatRoute = AuthenticatedChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedFamilyIndexRoute =
+  AuthenticatedFamilyIndexRouteImport.update({
+    id: '/family/',
+    path: '/family/',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDmIndexRoute = AuthenticatedDmIndexRouteImport.update({
+  id: '/dm/',
+  path: '/dm/',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedFamilyInviteRoute =
+  AuthenticatedFamilyInviteRouteImport.update({
+    id: '/family/invite',
+    path: '/family/invite',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
+const AuthenticatedDmUserIdRoute = AuthenticatedDmUserIdRouteImport.update({
+  id: '/dm/$userId',
+  path: '/dm/$userId',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/chat': typeof AuthenticatedChatRoute
+  '/chores': typeof AuthenticatedChoresRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/fuel': typeof AuthenticatedFuelRoute
+  '/grocery': typeof AuthenticatedGroceryRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/rewards': typeof AuthenticatedRewardsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/dm/$userId': typeof AuthenticatedDmUserIdRoute
+  '/family/invite': typeof AuthenticatedFamilyInviteRoute
+  '/dm/': typeof AuthenticatedDmIndexRoute
+  '/family/': typeof AuthenticatedFamilyIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/auth': typeof AuthRoute
+  '/chat': typeof AuthenticatedChatRoute
+  '/chores': typeof AuthenticatedChoresRoute
+  '/dashboard': typeof AuthenticatedDashboardRoute
+  '/fuel': typeof AuthenticatedFuelRoute
+  '/grocery': typeof AuthenticatedGroceryRoute
+  '/inventory': typeof AuthenticatedInventoryRoute
+  '/notifications': typeof AuthenticatedNotificationsRoute
+  '/profile': typeof AuthenticatedProfileRoute
+  '/rewards': typeof AuthenticatedRewardsRoute
+  '/settings': typeof AuthenticatedSettingsRoute
+  '/dm/$userId': typeof AuthenticatedDmUserIdRoute
+  '/family/invite': typeof AuthenticatedFamilyInviteRoute
+  '/dm': typeof AuthenticatedDmIndexRoute
+  '/family': typeof AuthenticatedFamilyIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
+  '/auth': typeof AuthRoute
+  '/_authenticated/chat': typeof AuthenticatedChatRoute
+  '/_authenticated/chores': typeof AuthenticatedChoresRoute
+  '/_authenticated/dashboard': typeof AuthenticatedDashboardRoute
+  '/_authenticated/fuel': typeof AuthenticatedFuelRoute
+  '/_authenticated/grocery': typeof AuthenticatedGroceryRoute
+  '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
+  '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
+  '/_authenticated/settings': typeof AuthenticatedSettingsRoute
+  '/_authenticated/dm/$userId': typeof AuthenticatedDmUserIdRoute
+  '/_authenticated/family/invite': typeof AuthenticatedFamilyInviteRoute
+  '/_authenticated/dm/': typeof AuthenticatedDmIndexRoute
+  '/_authenticated/family/': typeof AuthenticatedFamilyIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/auth'
+    | '/chat'
+    | '/chores'
+    | '/dashboard'
+    | '/fuel'
+    | '/grocery'
+    | '/inventory'
+    | '/notifications'
+    | '/profile'
+    | '/rewards'
+    | '/settings'
+    | '/dm/$userId'
+    | '/family/invite'
+    | '/dm/'
+    | '/family/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/auth'
+    | '/chat'
+    | '/chores'
+    | '/dashboard'
+    | '/fuel'
+    | '/grocery'
+    | '/inventory'
+    | '/notifications'
+    | '/profile'
+    | '/rewards'
+    | '/settings'
+    | '/dm/$userId'
+    | '/family/invite'
+    | '/dm'
+    | '/family'
+  id:
+    | '__root__'
+    | '/'
+    | '/_authenticated'
+    | '/auth'
+    | '/_authenticated/chat'
+    | '/_authenticated/chores'
+    | '/_authenticated/dashboard'
+    | '/_authenticated/fuel'
+    | '/_authenticated/grocery'
+    | '/_authenticated/inventory'
+    | '/_authenticated/notifications'
+    | '/_authenticated/profile'
+    | '/_authenticated/rewards'
+    | '/_authenticated/settings'
+    | '/_authenticated/dm/$userId'
+    | '/_authenticated/family/invite'
+    | '/_authenticated/dm/'
+    | '/_authenticated/family/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
+  AuthRoute: typeof AuthRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +258,150 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/_authenticated/settings': {
+      id: '/_authenticated/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AuthenticatedSettingsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/rewards': {
+      id: '/_authenticated/rewards'
+      path: '/rewards'
+      fullPath: '/rewards'
+      preLoaderRoute: typeof AuthenticatedRewardsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/profile': {
+      id: '/_authenticated/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AuthenticatedProfileRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/notifications': {
+      id: '/_authenticated/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof AuthenticatedNotificationsRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/inventory': {
+      id: '/_authenticated/inventory'
+      path: '/inventory'
+      fullPath: '/inventory'
+      preLoaderRoute: typeof AuthenticatedInventoryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/grocery': {
+      id: '/_authenticated/grocery'
+      path: '/grocery'
+      fullPath: '/grocery'
+      preLoaderRoute: typeof AuthenticatedGroceryRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/fuel': {
+      id: '/_authenticated/fuel'
+      path: '/fuel'
+      fullPath: '/fuel'
+      preLoaderRoute: typeof AuthenticatedFuelRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dashboard': {
+      id: '/_authenticated/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof AuthenticatedDashboardRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/chores': {
+      id: '/_authenticated/chores'
+      path: '/chores'
+      fullPath: '/chores'
+      preLoaderRoute: typeof AuthenticatedChoresRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/chat': {
+      id: '/_authenticated/chat'
+      path: '/chat'
+      fullPath: '/chat'
+      preLoaderRoute: typeof AuthenticatedChatRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/family/': {
+      id: '/_authenticated/family/'
+      path: '/family'
+      fullPath: '/family/'
+      preLoaderRoute: typeof AuthenticatedFamilyIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dm/': {
+      id: '/_authenticated/dm/'
+      path: '/dm'
+      fullPath: '/dm/'
+      preLoaderRoute: typeof AuthenticatedDmIndexRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/family/invite': {
+      id: '/_authenticated/family/invite'
+      path: '/family/invite'
+      fullPath: '/family/invite'
+      preLoaderRoute: typeof AuthenticatedFamilyInviteRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/dm/$userId': {
+      id: '/_authenticated/dm/$userId'
+      path: '/dm/$userId'
+      fullPath: '/dm/$userId'
+      preLoaderRoute: typeof AuthenticatedDmUserIdRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
+interface AuthenticatedRouteChildren {
+  AuthenticatedChatRoute: typeof AuthenticatedChatRoute
+  AuthenticatedChoresRoute: typeof AuthenticatedChoresRoute
+  AuthenticatedDashboardRoute: typeof AuthenticatedDashboardRoute
+  AuthenticatedFuelRoute: typeof AuthenticatedFuelRoute
+  AuthenticatedGroceryRoute: typeof AuthenticatedGroceryRoute
+  AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
+  AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
+  AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
+  AuthenticatedDmUserIdRoute: typeof AuthenticatedDmUserIdRoute
+  AuthenticatedFamilyInviteRoute: typeof AuthenticatedFamilyInviteRoute
+  AuthenticatedDmIndexRoute: typeof AuthenticatedDmIndexRoute
+  AuthenticatedFamilyIndexRoute: typeof AuthenticatedFamilyIndexRoute
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedChatRoute: AuthenticatedChatRoute,
+  AuthenticatedChoresRoute: AuthenticatedChoresRoute,
+  AuthenticatedDashboardRoute: AuthenticatedDashboardRoute,
+  AuthenticatedFuelRoute: AuthenticatedFuelRoute,
+  AuthenticatedGroceryRoute: AuthenticatedGroceryRoute,
+  AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
+  AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
+  AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
+  AuthenticatedDmUserIdRoute: AuthenticatedDmUserIdRoute,
+  AuthenticatedFamilyInviteRoute: AuthenticatedFamilyInviteRoute,
+  AuthenticatedDmIndexRoute: AuthenticatedDmIndexRoute,
+  AuthenticatedFamilyIndexRoute: AuthenticatedFamilyIndexRoute,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
+  AuthRoute: AuthRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

@@ -37,7 +37,7 @@ function FamilyPage() {
   });
 
   const updateRole = useMutation({
-    mutationFn: async ({ id, role, custom_role_name }: { id: string; role: string; custom_role_name?: string | null }) => {
+    mutationFn: async ({ id, role, custom_role_name }: { id: string; role: typeof ROLES[number]; custom_role_name?: string | null }) => {
       const { error } = await supabase.from("family_members").update({ role, custom_role_name: custom_role_name ?? null }).eq("id", id);
       if (error) throw error;
     },

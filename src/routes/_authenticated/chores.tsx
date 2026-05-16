@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentFamily } from "@/hooks/use-current-family";
 import { useAuth } from "@/hooks/use-auth";
@@ -158,11 +158,13 @@ function EditChoreDialog({ chore, onClose, onSaved }: { chore: any; onClose: () 
   const [points, setPoints] = useState("15");
   const open = !!chore;
 
-  useState(() => undefined);
-  // sync when chore changes
-  if (chore && title === "" && description === "" && points === "15" && (chore.title !== title || chore.description !== description)) {
-    // initial population
-  }
+  useEffect(() => {
+    if (chore) {
+      setTitle(chore.title ?? "");
+      setDescription(chore.description ?? "");
+      setPoints(String(chore.points ?? 15));
+    }
+  }, [chore]);
 
   const save = useMutation({
     mutationFn: async () => {
@@ -177,9 +179,7 @@ function EditChoreDialog({ chore, onClose, onSaved }: { chore: any; onClose: () 
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
-      <DialogContent className="max-w-md" onOpenAutoFocus={() => {
-        if (chore) { setTitle(chore.title ?? ""); setDescription(chore.description ?? ""); setPoints(String(chore.points ?? 15)); }
-      }}>
+      <DialogContent className="max-w-md">
         <DialogHeader><DialogTitle>Edit chore</DialogTitle></DialogHeader>
         <div className="space-y-3">
           <div><Label>Title</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 rounded-xl" /></div>

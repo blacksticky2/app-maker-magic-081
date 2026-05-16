@@ -8,6 +8,7 @@ import { Loader } from "@/components/Loader";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
+import { ChatTabs } from "@/components/ChatTabs";
 
 export const Route = createFileRoute("/_authenticated/chat")({
   component: ChatPage,

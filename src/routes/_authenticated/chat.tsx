@@ -35,7 +35,7 @@ function ChatPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("messages")
-        .select("*, sender:profiles!messages_sender_id_fkey(username, avatar_url)")
+        .select("*, sender:profiles!messages_sender_profile_fkey(username, avatar_url)")
         .eq("conversation_id", conv!.id)
         .order("created_at", { ascending: true })
         .limit(200);

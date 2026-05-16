@@ -30,7 +30,7 @@ function ChoresPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("chores")
-        .select("*, creator:profiles!chores_created_by_fkey(username), assignee:profiles!chores_assigned_to_fkey(username)")
+        .select("*, creator:profiles!chores_created_by_profile_fkey(username), assignee:profiles!chores_assigned_to_profile_fkey(username)")
         .eq("family_id", currentFamily!.id)
         .order("created_at", { ascending: false });
       return data ?? [];

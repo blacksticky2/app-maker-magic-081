@@ -30,15 +30,15 @@ function FamilyPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("family_members")
-        .select("id, role, custom_role_name, is_admin, user:profiles(id, username, avatar_url, points)")
+        .select("id, role, custom_role_name, is_admin, user:profiles!family_members_user_profile_fkey(id, username, avatar_url, points)")
         .eq("family_id", currentFamily!.id);
       return data ?? [];
     },
   });
 
   const updateRole = useMutation({
-    mutationFn: async ({ id, role, custom_role_name }: { id: string; role: typeof ROLES[number]; custom_role_name?: string | null }) => {
-      const { error } = await supabase.from("family_members").update({ role, custom_role_name: custom_role_name ?? null }).eq("id", id);
+    mutationFn: async ({ id, role, custom_role_name }: { id: string; role: string; custom_role_name?: string | null }) => {
+      const { error } = await supabase.from("family_members").update({ role: role as typeof ROLES[number], custom_role_name: custom_role_name ?? null }).eq("id", id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["family-members", currentFamily?.id] }),

@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentFamily } from "@/hooks/use-current-family";
 import { useAuth } from "@/hooks/use-auth";
@@ -11,7 +11,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Plus, CheckCircle2, Trophy, Clock, XCircle } from "lucide-react";
+import { Plus, CheckCircle2, Trophy, Clock, XCircle, Pencil, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/chores")({
@@ -44,6 +44,20 @@ function ChoresPage() {
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["chores", currentFamily?.id] }),
   });
+
+  const deleteChore = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("chores").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["chores", currentFamily?.id] });
+      toast.success("Chore deleted");
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const [editing, setEditing] = useState<any>(null);
 
   if (!currentFamily) return <p className="text-center text-muted-foreground py-12">Select a family first.</p>;
 
@@ -93,18 +107,35 @@ function ChoresPage() {
                       </p>
                     </div>
                     <div className="flex flex-col gap-1">
-                      {c.status === "open" && (
-                        <Button size="sm" className="rounded-xl gradient-hero text-white" onClick={() => updateStatus.mutate({ id: c.id, patch: { status: "accepted", assigned_to: user!.id } })}>Accept</Button>
-                      )}
-                      {(c.status === "accepted" || c.status === "in_progress") && c.assigned_to === user!.id && (
-                        <Button size="sm" className="rounded-xl gradient-hero text-white" onClick={() => updateStatus.mutate({ id: c.id, patch: { status: "submitted" } })}>Mark done</Button>
-                      )}
-                      {c.status === "submitted" && c.created_by === user!.id && (
+                      {c.created_by === user!.id ? (
                         <>
-                          <Button size="sm" className="rounded-xl gradient-hero text-white" onClick={() => { updateStatus.mutate({ id: c.id, patch: { status: "approved" } }); toast.success("Approved! Points awarded."); }}>
-                            <CheckCircle2 className="h-3 w-3 mr-1" /> Approve
-                          </Button>
-                          <Button size="sm" variant="outline" className="rounded-xl" onClick={() => updateStatus.mutate({ id: c.id, patch: { status: "rejected" } })}>Reject</Button>
+                          {c.status === "open" && (
+                            <>
+                              <Button size="sm" variant="outline" className="rounded-xl" onClick={() => setEditing(c)}>
+                                <Pencil className="h-3 w-3 mr-1" /> Edit
+                              </Button>
+                              <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:text-destructive" onClick={() => { if (confirm("Delete this chore?")) deleteChore.mutate(c.id); }}>
+                                <Trash2 className="h-3 w-3 mr-1" /> Delete
+                              </Button>
+                            </>
+                          )}
+                          {c.status === "submitted" && (
+                            <>
+                              <Button size="sm" className="rounded-xl gradient-hero text-white" onClick={() => { updateStatus.mutate({ id: c.id, patch: { status: "approved" } }); toast.success("Approved! Points awarded."); }}>
+                                <CheckCircle2 className="h-3 w-3 mr-1" /> Approve
+                              </Button>
+                              <Button size="sm" variant="outline" className="rounded-xl" onClick={() => updateStatus.mutate({ id: c.id, patch: { status: "rejected" } })}>Reject</Button>
+                            </>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          {c.status === "open" && (
+                            <Button size="sm" className="rounded-xl gradient-hero text-white" onClick={() => updateStatus.mutate({ id: c.id, patch: { status: "accepted", assigned_to: user!.id } })}>Accept</Button>
+                          )}
+                          {(c.status === "accepted" || c.status === "in_progress") && c.assigned_to === user!.id && (
+                            <Button size="sm" className="rounded-xl gradient-hero text-white" onClick={() => updateStatus.mutate({ id: c.id, patch: { status: "submitted" } })}>Mark done</Button>
+                          )}
                         </>
                       )}
                     </div>
@@ -115,7 +146,51 @@ function ChoresPage() {
           )}
         </TabsContent>
       </Tabs>
+
+      <EditChoreDialog chore={editing} onClose={() => setEditing(null)} onSaved={() => qc.invalidateQueries({ queryKey: ["chores", currentFamily?.id] })} />
     </div>
+  );
+}
+
+function EditChoreDialog({ chore, onClose, onSaved }: { chore: any; onClose: () => void; onSaved: () => void }) {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [points, setPoints] = useState("15");
+  const open = !!chore;
+
+  useEffect(() => {
+    if (chore) {
+      setTitle(chore.title ?? "");
+      setDescription(chore.description ?? "");
+      setPoints(String(chore.points ?? 15));
+    }
+  }, [chore]);
+
+  const save = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("chores").update({
+        title, description, points: Number(points),
+      }).eq("id", chore.id);
+      if (error) throw error;
+    },
+    onSuccess: () => { toast.success("Chore updated"); onSaved(); onClose(); },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={(o) => { if (!o) onClose(); }}>
+      <DialogContent className="max-w-md">
+        <DialogHeader><DialogTitle>Edit chore</DialogTitle></DialogHeader>
+        <div className="space-y-3">
+          <div><Label>Title</Label><Input value={title} onChange={(e) => setTitle(e.target.value)} className="mt-1 rounded-xl" /></div>
+          <div><Label>Description</Label><Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="mt-1 rounded-xl" /></div>
+          <div><Label>Points reward</Label><Input type="number" value={points} onChange={(e) => setPoints(e.target.value)} className="mt-1 rounded-xl" /></div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => save.mutate()} disabled={!title.trim()} className="rounded-xl gradient-hero text-white">Save changes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 

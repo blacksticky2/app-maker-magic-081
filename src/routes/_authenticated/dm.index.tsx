@@ -40,8 +40,8 @@ function DMIndex() {
         <ul className="space-y-2">
           {members!.map((m) => (
             <li key={m.id}>
-              <Link to="/dm/$userId" params={{ userId: m.id }} className="glass rounded-2xl p-4 hover-lift flex items-center gap-3 block">
-                <div className="h-10 w-10 rounded-full bg-muted grid place-items-center font-display font-semibold">{m.username[0]?.toUpperCase()}</div>
+              <Link to="/dm/$userId" params={{ userId: m.id }} className="glass rounded-2xl p-4 hover-lift flex items-center gap-3">
+                <div className="h-10 w-10 rounded-full gradient-hero grid place-items-center font-display font-semibold text-white">{m.username[0]?.toUpperCase()}</div>
                 <div className="flex-1"><p className="font-display font-semibold">@{m.username}</p></div>
                 <MessageCircle className="h-5 w-5 text-muted-foreground" />
               </Link>

@@ -31,6 +31,7 @@ import {
   DropdownMenuLabel,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { AnimatedBackground } from "@/components/AnimatedBackground";
 
 const NAV = [
   { to: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -89,12 +90,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row bg-background">
-      {/* Decorative blobs */}
-      <div className="pointer-events-none fixed inset-0 overflow-hidden -z-10">
-        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full gradient-soft blur-3xl opacity-60 animate-blob" />
-        <div className="absolute -bottom-32 -right-32 w-96 h-96 rounded-full gradient-soft blur-3xl opacity-60 animate-blob" style={{ animationDelay: "4s" }} />
-      </div>
+    <div className="min-h-screen flex flex-col md:flex-row bg-background relative">
+      <AnimatedBackground />
 
       {/* Desktop sidebar */}
       <aside className="hidden md:flex flex-col w-64 shrink-0 border-r border-sidebar-border bg-sidebar/70 backdrop-blur-xl p-4 gap-3 sticky top-0 h-screen">

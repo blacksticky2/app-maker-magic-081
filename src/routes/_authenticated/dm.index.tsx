@@ -23,7 +23,7 @@ function DMIndex() {
     queryFn: async () => {
       const { data } = await supabase
         .from("family_members")
-        .select("user:profiles(id, username, avatar_url)")
+        .select("user:profiles!family_members_user_profile_fkey(id, username, avatar_url)")
         .eq("family_id", currentFamily!.id);
       return ((data ?? []).map((m: any) => m.user).filter(Boolean) as any[]).filter((p) => p.id !== user!.id);
     },

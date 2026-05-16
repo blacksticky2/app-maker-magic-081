@@ -8,6 +8,7 @@ import { useEffect, useRef, useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, MessageCircle } from "lucide-react";
+import { ChatTabs } from "@/components/ChatTabs";
 
 export const Route = createFileRoute("/_authenticated/dm/")({
   component: DMIndex,
@@ -31,6 +32,7 @@ function DMIndex() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-4">
+      <ChatTabs />
       <h1 className="font-display text-3xl font-bold">Private Messages</h1>
       {!currentFamily ? (
         <p className="text-muted-foreground">Join a family to message members.</p>

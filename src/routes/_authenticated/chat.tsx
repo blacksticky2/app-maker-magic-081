@@ -67,31 +67,36 @@ function ChatPage() {
     onSuccess: () => setText(""),
   });
 
-  if (!currentFamily) return <p className="text-center text-muted-foreground py-12">Select a family first.</p>;
+  if (!currentFamily) return (
+    <div><ChatTabs /><p className="text-center text-muted-foreground py-12">Select a family first.</p></div>
+  );
 
   return (
-    <div className="max-w-3xl mx-auto h-[calc(100vh-12rem)] flex flex-col glass rounded-3xl overflow-hidden">
-      <div className="px-5 py-4 border-b border-border/40">
-        <h1 className="font-display font-semibold">{currentFamily.name} · Family Chat</h1>
-      </div>
-      <div className="flex-1 overflow-y-auto p-4 space-y-2">
-        {isLoading ? <Loader /> : (messages ?? []).map((m: any) => {
-          const mine = m.sender_id === user!.id;
-          return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"} animate-fade-up`}>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${mine ? "gradient-hero text-white" : "bg-muted"}`}>
-                {!mine && <p className="text-[10px] font-semibold opacity-70 mb-0.5">@{m.sender?.username}</p>}
-                <p className="text-sm whitespace-pre-wrap break-words">{m.content}</p>
+    <div>
+      <ChatTabs />
+      <div className="max-w-3xl mx-auto h-[calc(100vh-16rem)] flex flex-col glass rounded-3xl overflow-hidden">
+        <div className="px-5 py-4 border-b border-border/40">
+          <h1 className="font-display font-semibold">{currentFamily.name} · Family Chat</h1>
+        </div>
+        <div className="flex-1 overflow-y-auto p-4 space-y-2">
+          {isLoading ? <Loader /> : (messages ?? []).map((m: any) => {
+            const mine = m.sender_id === user!.id;
+            return (
+              <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"} animate-fade-up`}>
+                <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${mine ? "gradient-hero text-white" : "bg-muted"}`}>
+                  {!mine && <p className="text-[10px] font-semibold opacity-70 mb-0.5">@{m.sender?.username}</p>}
+                  <p className="text-sm whitespace-pre-wrap break-words">{m.content}</p>
+                </div>
               </div>
-            </div>
-          );
-        })}
-        <div ref={endRef} />
+            );
+          })}
+          <div ref={endRef} />
+        </div>
+        <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) sendMut.mutate(text.trim()); }} className="border-t border-border/40 p-3 flex gap-2">
+          <Input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Message as @${profile?.username}…`} className="rounded-xl" />
+          <Button type="submit" size="icon" className="rounded-xl gradient-hero text-white" disabled={!text.trim()}><Send className="h-4 w-4" /></Button>
+        </form>
       </div>
-      <form onSubmit={(e) => { e.preventDefault(); if (text.trim()) sendMut.mutate(text.trim()); }} className="border-t border-border/40 p-3 flex gap-2">
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder={`Message as @${profile?.username}…`} className="rounded-xl" />
-        <Button type="submit" size="icon" className="rounded-xl gradient-hero text-white" disabled={!text.trim()}><Send className="h-4 w-4" /></Button>
-      </form>
     </div>
   );
 }

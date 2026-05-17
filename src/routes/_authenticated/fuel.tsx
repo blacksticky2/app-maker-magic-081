@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/fuel")({
 });
 
 function FuelPage() {
-  const { currentFamily } = useCurrentFamily();
+  const { currentFamily, isAdmin } = useCurrentFamily();
   const { user } = useAuth();
   const qc = useQueryClient();
 

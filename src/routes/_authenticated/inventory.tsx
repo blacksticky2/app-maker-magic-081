@@ -49,7 +49,7 @@ const PRESETS = [
 ];
 
 function InventoryPage() {
-  const { currentFamily } = useCurrentFamily();
+  const { currentFamily, isAdmin } = useCurrentFamily();
   const { user } = useAuth();
   const qc = useQueryClient();
   const [search, setSearch] = useState("");
@@ -81,6 +81,7 @@ function InventoryPage() {
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ["inventory", currentFamily?.id] }),
+    onError: (e) => toast.error((e as Error).message),
   });
 
   const deleteMut = useMutation({
@@ -92,6 +93,7 @@ function InventoryPage() {
       qc.invalidateQueries({ queryKey: ["inventory", currentFamily?.id] });
       toast.success("Item removed");
     },
+    onError: (e) => toast.error((e as Error).message),
   });
 
   if (!currentFamily) return <p className="text-center text-muted-foreground py-12">Select or create a family first.</p>;
@@ -107,9 +109,9 @@ function InventoryPage() {
       <div className="flex items-center justify-between gap-3 flex-wrap">
         <div>
           <h1 className="font-display text-3xl font-bold">Inventory</h1>
-          <p className="text-sm text-muted-foreground">Track everything your family needs.</p>
+          <p className="text-sm text-muted-foreground">{isAdmin ? "Track everything your family needs." : "View-only — only admins can change stock."}</p>
         </div>
-        <AddItemDialog open={addOpen} onOpenChange={setAddOpen} />
+        {isAdmin && <AddItemDialog open={addOpen} onOpenChange={setAddOpen} />}
       </div>
 
       <div className="glass rounded-2xl p-3 flex flex-wrap gap-2 items-center">
@@ -144,18 +146,22 @@ function InventoryPage() {
                     </div>
                     <p className="text-xs text-muted-foreground">{i.category}</p>
                   </div>
-                  <button onClick={() => deleteMut.mutate(i.id)} className="text-muted-foreground hover:text-destructive">
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {isAdmin && (
+                    <button onClick={() => deleteMut.mutate(i.id)} className="text-muted-foreground hover:text-destructive">
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  )}
                 </div>
                 <div className="mt-3 flex items-center justify-between">
                   <div className={`text-2xl font-display font-bold ${low ? "text-accent" : ""}`}>
                     {Number(i.quantity)} <span className="text-sm font-medium text-muted-foreground">{i.unit}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Button size="icon" variant="outline" className="h-8 w-8 rounded-full" onClick={() => adjustMut.mutate({ id: i.id, delta: -1, current: Number(i.quantity) })}><Minus className="h-3 w-3" /></Button>
-                    <Button size="icon" variant="outline" className="h-8 w-8 rounded-full" onClick={() => adjustMut.mutate({ id: i.id, delta: 1, current: Number(i.quantity) })}><Plus className="h-3 w-3" /></Button>
-                  </div>
+                  {isAdmin && (
+                    <div className="flex items-center gap-1">
+                      <Button size="icon" variant="outline" className="h-8 w-8 rounded-full" onClick={() => adjustMut.mutate({ id: i.id, delta: -1, current: Number(i.quantity) })}><Minus className="h-3 w-3" /></Button>
+                      <Button size="icon" variant="outline" className="h-8 w-8 rounded-full" onClick={() => adjustMut.mutate({ id: i.id, delta: 1, current: Number(i.quantity) })}><Plus className="h-3 w-3" /></Button>
+                    </div>
+                  )}
                 </div>
               </div>
             );

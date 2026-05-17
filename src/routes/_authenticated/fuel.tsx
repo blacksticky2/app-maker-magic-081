@@ -18,7 +18,7 @@ export const Route = createFileRoute("/_authenticated/fuel")({
 });
 
 function FuelPage() {
-  const { currentFamily } = useCurrentFamily();
+  const { currentFamily, isAdmin } = useCurrentFamily();
   const { user } = useAuth();
   const qc = useQueryClient();
 
@@ -63,9 +63,9 @@ function FuelPage() {
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <h1 className="font-display text-3xl font-bold">Fuel Tracking</h1>
-          <p className="text-sm text-muted-foreground">Manage your family vehicles and fuel.</p>
+          <p className="text-sm text-muted-foreground">{isAdmin ? "Manage your family vehicles and fuel." : "View-only — only admins can add vehicles or log fuel."}</p>
         </div>
-        <AddVehicleDialog />
+        {isAdmin && <AddVehicleDialog />}
       </div>
 
       {isLoading ? <Loader /> : (vehicles ?? []).length === 0 ? (
@@ -97,10 +97,16 @@ function FuelPage() {
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">{pct}% of {Number(v.fuel_capacity)} L capacity</p>
                 <div className="mt-4 flex gap-2">
-                  <RefillButton vehicle={v} onRefill={(l, c) => refillMut.mutate({ vehicle: v, liters: l, cost: c })} />
-                  <Button variant="outline" size="sm" className="rounded-xl" onClick={() => useMut.mutate({ vehicle: v, liters: 1 })}>
-                    <Droplet className="h-3 w-3 mr-1" /> Use 1L
-                  </Button>
+                  {isAdmin ? (
+                    <>
+                      <RefillButton vehicle={v} onRefill={(l, c) => refillMut.mutate({ vehicle: v, liters: l, cost: c })} />
+                      <Button variant="outline" size="sm" className="rounded-xl" onClick={() => useMut.mutate({ vehicle: v, liters: 1 })}>
+                        <Droplet className="h-3 w-3 mr-1" /> Use 1L
+                      </Button>
+                    </>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">Ask an admin to refill or log usage.</p>
+                  )}
                 </div>
               </div>
             );

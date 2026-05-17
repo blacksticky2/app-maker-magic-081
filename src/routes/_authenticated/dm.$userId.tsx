@@ -101,17 +101,24 @@ function DMConversation() {
 
   return (
     <div className="max-w-2xl mx-auto h-[calc(100vh-12rem)] flex flex-col glass rounded-3xl overflow-hidden">
-      <div className="px-5 py-4 border-b border-border/40">
-        <h1 className="font-display font-semibold">@{other?.username ?? "…"}</h1>
-      </div>
+      <Link to="/profile/$userId" params={{ userId }} className="px-5 py-4 border-b border-border/40 flex items-center gap-3 hover:bg-muted/40 transition">
+        <UserAvatar userId={userId} username={other?.username} avatarUrl={other?.avatar_url} size="md" />
+        <div>
+          <h1 className="font-display font-semibold">@{other?.username ?? "…"}</h1>
+          <p className="text-[10px] text-muted-foreground">Tap to view profile</p>
+        </div>
+      </Link>
       <div className="flex-1 overflow-y-auto p-4 space-y-2">
         {isLoading ? <Loader /> : (messages ?? []).map((m: any) => {
           const mine = m.sender_id === user!.id;
+          const u = mine ? me : other;
           return (
-            <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"} animate-fade-up`}>
-              <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${mine ? "gradient-hero text-white" : "bg-muted"}`}>
+            <div key={m.id} className={`flex gap-2 ${mine ? "justify-end" : "justify-start"} animate-fade-up`}>
+              {!mine && <UserAvatar userId={userId} username={u?.username} avatarUrl={u?.avatar_url} size="sm" linkToProfile />}
+              <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${mine ? "gradient-hero text-white" : "bg-muted"}`}>
                 <p className="text-sm whitespace-pre-wrap break-words">{m.content}</p>
               </div>
+              {mine && <UserAvatar userId={user!.id} username={me?.username} avatarUrl={me?.avatar_url} size="sm" />}
             </div>
           );
         })}

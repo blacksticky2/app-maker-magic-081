@@ -88,8 +88,10 @@ export function AvatarUploader({ children }: { children?: React.ReactNode }) {
           <DialogHeader><DialogTitle>Crop your picture</DialogTitle></DialogHeader>
           <div className="relative h-72 w-full bg-muted rounded-xl overflow-hidden">
             {src && (
-              <Cropper image={src} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false}
-                onCropChange={setCrop} onZoomChange={setZoom} onCropComplete={onComplete} />
+              <Suspense fallback={<div className="h-full w-full grid place-items-center text-xs text-muted-foreground">Loading…</div>}>
+                <Cropper image={src} crop={crop} zoom={zoom} aspect={1} cropShape="round" showGrid={false}
+                  onCropChange={setCrop} onZoomChange={setZoom} onCropComplete={onComplete} />
+              </Suspense>
             )}
           </div>
           <div className="px-1">

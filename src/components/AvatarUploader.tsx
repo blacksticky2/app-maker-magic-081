@@ -1,5 +1,5 @@
-import { useCallback, useRef, useState } from "react";
-import Cropper from "react-easy-crop";
+import { lazy, Suspense, useCallback, useRef, useState } from "react";
+const Cropper = lazy(() => import("react-easy-crop"));
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Slider } from "@/components/ui/slider";

@@ -7,6 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { Loader } from "@/components/Loader";
+import { UserAvatar } from "@/components/UserAvatar";
+import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_authenticated/dm/$userId")({
   component: DMConversation,
@@ -47,7 +49,16 @@ function DMConversation() {
   const { data: other } = useQuery({
     queryKey: ["profile", userId],
     queryFn: async () => {
-      const { data } = await supabase.from("profiles").select("username, avatar_url").eq("id", userId).maybeSingle();
+      const { data } = await supabase.from("profiles").select("id, username, avatar_url").eq("id", userId).maybeSingle();
+      return data;
+    },
+  });
+
+  const { data: me } = useQuery({
+    queryKey: ["profile-me-mini", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("avatar_url, username").eq("id", user!.id).maybeSingle();
       return data;
     },
   });

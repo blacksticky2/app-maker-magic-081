@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { ChatTabs } from "@/components/ChatTabs";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/_authenticated/chat")({
   component: ChatPage,
@@ -82,11 +83,17 @@ function ChatPage() {
           {isLoading ? <Loader /> : (messages ?? []).map((m: any) => {
             const mine = m.sender_id === user!.id;
             return (
-              <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"} animate-fade-up`}>
-                <div className={`max-w-[80%] rounded-2xl px-4 py-2 ${mine ? "gradient-hero text-white" : "bg-muted"}`}>
+              <div key={m.id} className={`flex gap-2 ${mine ? "justify-end" : "justify-start"} animate-fade-up`}>
+                {!mine && (
+                  <UserAvatar userId={m.sender_id} username={m.sender?.username} avatarUrl={m.sender?.avatar_url} size="sm" linkToProfile />
+                )}
+                <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${mine ? "gradient-hero text-white" : "bg-muted"}`}>
                   {!mine && <p className="text-[10px] font-semibold opacity-70 mb-0.5">@{m.sender?.username}</p>}
                   <p className="text-sm whitespace-pre-wrap break-words">{m.content}</p>
                 </div>
+                {mine && (
+                  <UserAvatar userId={m.sender_id} username={m.sender?.username} avatarUrl={m.sender?.avatar_url} size="sm" />
+                )}
               </div>
             );
           })}

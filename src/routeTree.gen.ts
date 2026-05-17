@@ -24,6 +24,7 @@ import { Route as AuthenticatedChoresRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedChatRouteImport } from './routes/_authenticated/chat'
 import { Route as AuthenticatedFamilyIndexRouteImport } from './routes/_authenticated/family.index'
 import { Route as AuthenticatedDmIndexRouteImport } from './routes/_authenticated/dm.index'
+import { Route as AuthenticatedProfileUserIdRouteImport } from './routes/_authenticated/profile.$userId'
 import { Route as AuthenticatedFamilyInviteRouteImport } from './routes/_authenticated/family.invite'
 import { Route as AuthenticatedDmUserIdRouteImport } from './routes/_authenticated/dm.$userId'
 
@@ -103,6 +104,12 @@ const AuthenticatedDmIndexRoute = AuthenticatedDmIndexRouteImport.update({
   path: '/dm/',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedProfileUserIdRoute =
+  AuthenticatedProfileUserIdRouteImport.update({
+    id: '/$userId',
+    path: '/$userId',
+    getParentRoute: () => AuthenticatedProfileRoute,
+  } as any)
 const AuthenticatedFamilyInviteRoute =
   AuthenticatedFamilyInviteRouteImport.update({
     id: '/family/invite',
@@ -125,11 +132,12 @@ export interface FileRoutesByFullPath {
   '/grocery': typeof AuthenticatedGroceryRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
-  '/profile': typeof AuthenticatedProfileRoute
+  '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/rewards': typeof AuthenticatedRewardsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/dm/$userId': typeof AuthenticatedDmUserIdRoute
   '/family/invite': typeof AuthenticatedFamilyInviteRoute
+  '/profile/$userId': typeof AuthenticatedProfileUserIdRoute
   '/dm/': typeof AuthenticatedDmIndexRoute
   '/family/': typeof AuthenticatedFamilyIndexRoute
 }
@@ -143,11 +151,12 @@ export interface FileRoutesByTo {
   '/grocery': typeof AuthenticatedGroceryRoute
   '/inventory': typeof AuthenticatedInventoryRoute
   '/notifications': typeof AuthenticatedNotificationsRoute
-  '/profile': typeof AuthenticatedProfileRoute
+  '/profile': typeof AuthenticatedProfileRouteWithChildren
   '/rewards': typeof AuthenticatedRewardsRoute
   '/settings': typeof AuthenticatedSettingsRoute
   '/dm/$userId': typeof AuthenticatedDmUserIdRoute
   '/family/invite': typeof AuthenticatedFamilyInviteRoute
+  '/profile/$userId': typeof AuthenticatedProfileUserIdRoute
   '/dm': typeof AuthenticatedDmIndexRoute
   '/family': typeof AuthenticatedFamilyIndexRoute
 }
@@ -163,11 +172,12 @@ export interface FileRoutesById {
   '/_authenticated/grocery': typeof AuthenticatedGroceryRoute
   '/_authenticated/inventory': typeof AuthenticatedInventoryRoute
   '/_authenticated/notifications': typeof AuthenticatedNotificationsRoute
-  '/_authenticated/profile': typeof AuthenticatedProfileRoute
+  '/_authenticated/profile': typeof AuthenticatedProfileRouteWithChildren
   '/_authenticated/rewards': typeof AuthenticatedRewardsRoute
   '/_authenticated/settings': typeof AuthenticatedSettingsRoute
   '/_authenticated/dm/$userId': typeof AuthenticatedDmUserIdRoute
   '/_authenticated/family/invite': typeof AuthenticatedFamilyInviteRoute
+  '/_authenticated/profile/$userId': typeof AuthenticatedProfileUserIdRoute
   '/_authenticated/dm/': typeof AuthenticatedDmIndexRoute
   '/_authenticated/family/': typeof AuthenticatedFamilyIndexRoute
 }
@@ -188,6 +198,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/dm/$userId'
     | '/family/invite'
+    | '/profile/$userId'
     | '/dm/'
     | '/family/'
   fileRoutesByTo: FileRoutesByTo
@@ -206,6 +217,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/dm/$userId'
     | '/family/invite'
+    | '/profile/$userId'
     | '/dm'
     | '/family'
   id:
@@ -225,6 +237,7 @@ export interface FileRouteTypes {
     | '/_authenticated/settings'
     | '/_authenticated/dm/$userId'
     | '/_authenticated/family/invite'
+    | '/_authenticated/profile/$userId'
     | '/_authenticated/dm/'
     | '/_authenticated/family/'
   fileRoutesById: FileRoutesById
@@ -342,6 +355,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDmIndexRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/profile/$userId': {
+      id: '/_authenticated/profile/$userId'
+      path: '/$userId'
+      fullPath: '/profile/$userId'
+      preLoaderRoute: typeof AuthenticatedProfileUserIdRouteImport
+      parentRoute: typeof AuthenticatedProfileRoute
+    }
     '/_authenticated/family/invite': {
       id: '/_authenticated/family/invite'
       path: '/family/invite'
@@ -359,6 +379,17 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AuthenticatedProfileRouteChildren {
+  AuthenticatedProfileUserIdRoute: typeof AuthenticatedProfileUserIdRoute
+}
+
+const AuthenticatedProfileRouteChildren: AuthenticatedProfileRouteChildren = {
+  AuthenticatedProfileUserIdRoute: AuthenticatedProfileUserIdRoute,
+}
+
+const AuthenticatedProfileRouteWithChildren =
+  AuthenticatedProfileRoute._addFileChildren(AuthenticatedProfileRouteChildren)
+
 interface AuthenticatedRouteChildren {
   AuthenticatedChatRoute: typeof AuthenticatedChatRoute
   AuthenticatedChoresRoute: typeof AuthenticatedChoresRoute
@@ -367,7 +398,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedGroceryRoute: typeof AuthenticatedGroceryRoute
   AuthenticatedInventoryRoute: typeof AuthenticatedInventoryRoute
   AuthenticatedNotificationsRoute: typeof AuthenticatedNotificationsRoute
-  AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
+  AuthenticatedProfileRoute: typeof AuthenticatedProfileRouteWithChildren
   AuthenticatedRewardsRoute: typeof AuthenticatedRewardsRoute
   AuthenticatedSettingsRoute: typeof AuthenticatedSettingsRoute
   AuthenticatedDmUserIdRoute: typeof AuthenticatedDmUserIdRoute
@@ -384,7 +415,7 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedGroceryRoute: AuthenticatedGroceryRoute,
   AuthenticatedInventoryRoute: AuthenticatedInventoryRoute,
   AuthenticatedNotificationsRoute: AuthenticatedNotificationsRoute,
-  AuthenticatedProfileRoute: AuthenticatedProfileRoute,
+  AuthenticatedProfileRoute: AuthenticatedProfileRouteWithChildren,
   AuthenticatedRewardsRoute: AuthenticatedRewardsRoute,
   AuthenticatedSettingsRoute: AuthenticatedSettingsRoute,
   AuthenticatedDmUserIdRoute: AuthenticatedDmUserIdRoute,
@@ -405,3 +436,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

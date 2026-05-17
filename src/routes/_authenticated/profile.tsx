@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { useCurrentFamily } from "@/hooks/use-current-family";
 import { Trophy, CheckCircle2, Users } from "lucide-react";
+import { AvatarUploader } from "@/components/AvatarUploader";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   component: ProfilePage,
@@ -14,11 +15,12 @@ function ProfilePage() {
   return (
     <div className="max-w-2xl mx-auto space-y-5">
       <div className="glass rounded-3xl p-8 text-center gradient-soft">
-        <div className="h-24 w-24 mx-auto rounded-full bg-background grid place-items-center font-display font-bold text-3xl text-gradient">
-          {profile.username[0]?.toUpperCase()}
+        <div className="flex justify-center">
+          <AvatarUploader />
         </div>
         <h1 className="font-display text-3xl font-bold mt-4">@{profile.username}</h1>
         <p className="text-sm text-muted-foreground">{profile.email}</p>
+        <p className="text-xs text-muted-foreground mt-2">Tap your picture to upload or change it</p>
       </div>
       <div className="grid grid-cols-3 gap-3">
         <div className="glass rounded-2xl p-4 text-center">

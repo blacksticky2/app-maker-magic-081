@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send, MessageCircle } from "lucide-react";
 import { ChatTabs } from "@/components/ChatTabs";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/_authenticated/dm/")({
   component: DMIndex,
@@ -43,7 +44,7 @@ function DMIndex() {
           {members!.map((m) => (
             <li key={m.id}>
               <Link to="/dm/$userId" params={{ userId: m.id }} className="glass rounded-2xl p-4 hover-lift flex items-center gap-3">
-                <div className="h-10 w-10 rounded-full gradient-hero grid place-items-center font-display font-semibold text-white">{m.username[0]?.toUpperCase()}</div>
+                <UserAvatar userId={m.id} username={m.username} avatarUrl={m.avatar_url} size="md" />
                 <div className="flex-1"><p className="font-display font-semibold">@{m.username}</p></div>
                 <MessageCircle className="h-5 w-5 text-muted-foreground" />
               </Link>

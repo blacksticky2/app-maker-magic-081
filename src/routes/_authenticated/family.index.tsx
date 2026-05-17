@@ -92,7 +92,7 @@ function FamilyPage() {
         const { error: e1 } = await supabase.from("family_members").insert({ family_id: familyId, user_id: user!.id, role: "Custom" });
         if (e1 && !e1.message.includes("duplicate")) throw e1;
       }
-      const { error: e2 } = await supabase.from("family_invites").update({ status: accept ? "accepted" : "rejected" }).eq("id", inviteId);
+      const { error: e2 } = await supabase.from("family_invites").update({ status: accept ? "accepted" : "declined" }).eq("id", inviteId);
       if (e2) throw e2;
     },
     onSuccess: async (_d, v) => {

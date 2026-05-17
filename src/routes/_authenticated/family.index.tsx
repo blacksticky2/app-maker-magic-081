@@ -44,7 +44,7 @@ function FamilyPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("family_invites")
-        .select("id, status, family:families(id, name), inviter:profiles!family_invites_invited_by_profile_fkey(username)")
+        .select("id, status, family:families(id, name)")
         .eq("invited_user_id", user!.id)
         .eq("status", "pending");
       return data ?? [];
@@ -117,7 +117,7 @@ function FamilyPage() {
             <div key={iv.id} className="flex items-center gap-3 p-3 rounded-2xl bg-muted/40">
               <div className="flex-1">
                 <p className="font-medium">{iv.family?.name}</p>
-                <p className="text-xs text-muted-foreground">Invited by @{iv.inviter?.username}</p>
+                <p className="text-xs text-muted-foreground">You've been invited to join</p>
               </div>
               <Button size="sm" className="rounded-xl gradient-hero text-white" onClick={() => respondInvite.mutate({ inviteId: iv.id, familyId: iv.family.id, accept: true })}>
                 <Check className="h-3 w-3 mr-1" /> Join

@@ -9,9 +9,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Plus, Crown, UserPlus } from "lucide-react";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { Plus, Crown, UserPlus, LogOut, Check, X, Mail } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { UserAvatar } from "@/components/UserAvatar";
 
 export const Route = createFileRoute("/_authenticated/family/")({
   component: FamilyPage,
@@ -30,8 +32,21 @@ function FamilyPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("family_members")
-        .select("id, role, custom_role_name, is_admin, user:profiles!family_members_user_profile_fkey(id, username, avatar_url, points)")
+        .select("id, user_id, role, custom_role_name, is_admin, user:profiles!family_members_user_profile_fkey(id, username, avatar_url, points)")
         .eq("family_id", currentFamily!.id);
+      return data ?? [];
+    },
+  });
+
+  const { data: invites } = useQuery({
+    queryKey: ["my-invites", user?.id],
+    enabled: !!user,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("family_invites")
+        .select("id, status, family:families(id, name), inviter:profiles!family_invites_invited_by_profile_fkey(username)")
+        .eq("invited_user_id", user!.id)
+        .eq("status", "pending");
       return data ?? [];
     },
   });
@@ -44,12 +59,76 @@ function FamilyPage() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["family-members", currentFamily?.id] }),
   });
 
+  const toggleAdmin = useMutation({
+    mutationFn: async ({ id, makeAdmin }: { id: string; makeAdmin: boolean }) => {
+      const { error } = await supabase.from("family_members").update({ is_admin: makeAdmin }).eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["family-members", currentFamily?.id] }),
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const leaveMut = useMutation({
+    mutationFn: async () => {
+      const admins = (members ?? []).filter((m: any) => m.is_admin);
+      if (isAdmin && admins.length <= 1) {
+        throw new Error("You're the only admin. Promote someone else first.");
+      }
+      const me = (members ?? []).find((m: any) => m.user_id === user!.id);
+      if (!me) throw new Error("Not a member");
+      const { error } = await supabase.from("family_members").delete().eq("id", me.id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      toast.success("You left the family");
+      await refresh();
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const respondInvite = useMutation({
+    mutationFn: async ({ inviteId, familyId, accept }: { inviteId: string; familyId: string; accept: boolean }) => {
+      if (accept) {
+        const { error: e1 } = await supabase.from("family_members").insert({ family_id: familyId, user_id: user!.id, role: "Custom" });
+        if (e1 && !e1.message.includes("duplicate")) throw e1;
+      }
+      const { error: e2 } = await supabase.from("family_invites").update({ status: accept ? "accepted" : "rejected" }).eq("id", inviteId);
+      if (e2) throw e2;
+    },
+    onSuccess: async (_d, v) => {
+      toast.success(v.accept ? "Joined family" : "Invite declined");
+      qc.invalidateQueries({ queryKey: ["my-invites", user?.id] });
+      await refresh();
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
   return (
     <div className="max-w-4xl mx-auto space-y-5">
       <div className="flex items-center justify-between flex-wrap gap-3">
-        <h1 className="font-display text-3xl font-bold">Family</h1>
+        <h1 className="font-display text-3xl font-bold">Families</h1>
         <CreateFamilyDialog onCreated={() => refresh()} />
       </div>
+
+      {(invites ?? []).length > 0 && (
+        <div className="glass rounded-3xl p-4 space-y-2">
+          <p className="font-display font-semibold flex items-center gap-2"><Mail className="h-4 w-4" /> Pending invitations</p>
+          {invites!.map((iv: any) => (
+            <div key={iv.id} className="flex items-center gap-3 p-3 rounded-2xl bg-muted/40">
+              <div className="flex-1">
+                <p className="font-medium">{iv.family?.name}</p>
+                <p className="text-xs text-muted-foreground">Invited by @{iv.inviter?.username}</p>
+              </div>
+              <Button size="sm" className="rounded-xl gradient-hero text-white" onClick={() => respondInvite.mutate({ inviteId: iv.id, familyId: iv.family.id, accept: true })}>
+                <Check className="h-3 w-3 mr-1" /> Join
+              </Button>
+              <Button size="sm" variant="outline" className="rounded-xl" onClick={() => respondInvite.mutate({ inviteId: iv.id, familyId: iv.family.id, accept: false })}>
+                <X className="h-3 w-3" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
 
       {families.length > 1 && (
         <div className="glass rounded-2xl p-3 flex flex-wrap gap-2">
@@ -67,17 +146,38 @@ function FamilyPage() {
 
       {!currentFamily ? (
         <div className="glass rounded-3xl p-12 text-center">
-          <p className="text-muted-foreground">No family yet. Create one to get started.</p>
+          <p className="text-muted-foreground">No family yet. Create or join one to get started.</p>
         </div>
       ) : (
         <>
           <div className="glass rounded-3xl p-6 gradient-soft">
-            <h2 className="font-display text-2xl font-bold">{currentFamily.name}</h2>
-            <p className="text-sm text-muted-foreground mt-1">{members?.length ?? 0} members</p>
-            <div className="mt-4">
-              <Link to="/family/invite" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl gradient-hero text-white font-medium">
-                <UserPlus className="h-4 w-4" /> Invite member
-              </Link>
+            <div className="flex items-start justify-between gap-3 flex-wrap">
+              <div>
+                <h2 className="font-display text-2xl font-bold">{currentFamily.name}</h2>
+                <p className="text-sm text-muted-foreground mt-1">{members?.length ?? 0} members · You're {isAdmin ? "an admin" : "a member"}</p>
+              </div>
+              <div className="flex gap-2">
+                {isAdmin && (
+                  <Link to="/family/invite" className="inline-flex items-center gap-2 px-4 py-2 rounded-xl gradient-hero text-white text-sm font-medium">
+                    <UserPlus className="h-4 w-4" /> Invite
+                  </Link>
+                )}
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="outline" size="sm" className="rounded-xl"><LogOut className="h-4 w-4 mr-1" /> Leave</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Leave {currentFamily.name}?</AlertDialogTitle>
+                      <AlertDialogDescription>You'll lose access to this family's chats, chores, and inventory.</AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => leaveMut.mutate()}>Leave family</AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              </div>
             </div>
           </div>
 
@@ -87,7 +187,7 @@ function FamilyPage() {
               <ul className="space-y-2">
                 {(members ?? []).map((m: any) => (
                   <li key={m.id} className="flex items-center gap-3 p-3 rounded-2xl bg-muted/40">
-                    <div className="h-10 w-10 rounded-full bg-background grid place-items-center font-display font-semibold">{m.user?.username?.[0]?.toUpperCase()}</div>
+                    <UserAvatar userId={m.user?.id} username={m.user?.username} avatarUrl={m.user?.avatar_url} size="md" linkToProfile />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="font-medium truncate">@{m.user?.username}</p>
@@ -95,7 +195,7 @@ function FamilyPage() {
                       </div>
                       <p className="text-xs text-muted-foreground">{m.role === "Custom" ? (m.custom_role_name ?? "Custom") : m.role}</p>
                     </div>
-                    {(isAdmin || m.user?.id === user!.id) && (
+                    {(isAdmin || m.user_id === user!.id) && (
                       <Select
                         defaultValue={m.role}
                         onValueChange={(v) => {
@@ -105,9 +205,19 @@ function FamilyPage() {
                           } else updateRole.mutate({ id: m.id, role: v, custom_role_name: null });
                         }}
                       >
-                        <SelectTrigger className="w-32 h-8 text-xs rounded-xl"><SelectValue /></SelectTrigger>
+                        <SelectTrigger className="w-28 h-8 text-xs rounded-xl"><SelectValue /></SelectTrigger>
                         <SelectContent>{ROLES.map((r) => <SelectItem key={r} value={r}>{r}</SelectItem>)}</SelectContent>
                       </Select>
+                    )}
+                    {isAdmin && m.user_id !== user!.id && (
+                      <Button
+                        size="sm"
+                        variant={m.is_admin ? "secondary" : "outline"}
+                        className="rounded-xl text-xs h-8"
+                        onClick={() => toggleAdmin.mutate({ id: m.id, makeAdmin: !m.is_admin })}
+                      >
+                        {m.is_admin ? "Demote" : "Make admin"}
+                      </Button>
                     )}
                   </li>
                 ))}
@@ -136,7 +246,7 @@ function CreateFamilyDialog({ onCreated }: { onCreated: () => void }) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild><Button className="rounded-xl gradient-hero text-white"><Plus className="h-4 w-4 mr-1" /> Create family</Button></DialogTrigger>
       <DialogContent className="max-w-sm">
-        <DialogHeader><DialogTitle>Create a family</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle>Create a new family</DialogTitle></DialogHeader>
         <div><Label>Family name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. The Khans" className="mt-1 rounded-xl" /></div>
         <DialogFooter><Button onClick={() => create.mutate()} disabled={!name.trim()} className="rounded-xl gradient-hero text-white">Create</Button></DialogFooter>
       </DialogContent>

@@ -10,7 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
-import { Plus, Crown, UserPlus, LogOut, Check, X, Mail } from "lucide-react";
+import { Plus, Crown, UserPlus, LogOut, Check, X, Mail, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -81,6 +81,18 @@ function FamilyPage() {
     },
     onSuccess: async () => {
       toast.success("You left the family");
+      await refresh();
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const deleteFamilyMut = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("families").delete().eq("id", currentFamily!.id);
+      if (error) throw error;
+    },
+    onSuccess: async () => {
+      toast.success("Family deleted");
       await refresh();
     },
     onError: (e) => toast.error((e as Error).message),

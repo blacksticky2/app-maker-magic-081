@@ -2,7 +2,7 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./use-auth";
 
-export type Family = { id: string; name: string; avatar_url: string | null; banner_url: string | null };
+export type Family = { id: string; name: string; avatar_url: string | null; banner_url: string | null; created_by: string };
 type FamilyMember = { family: Family; role: string; custom_role_name: string | null; is_admin: boolean };
 
 type Ctx = {
@@ -30,7 +30,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     }
     const { data } = await supabase
       .from("family_members")
-      .select("role, custom_role_name, is_admin, family:families(id, name, avatar_url, banner_url)")
+      .select("role, custom_role_name, is_admin, family:families(id, name, avatar_url, banner_url, created_by)")
       .eq("user_id", user.id);
     const list = ((data as unknown as FamilyMember[]) || []).filter((m) => m.family);
     setFamilies(list);

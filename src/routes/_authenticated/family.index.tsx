@@ -189,7 +189,23 @@ function FamilyPage() {
                     </AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
-              </div>
+                {currentFamily.created_by === user!.id && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" size="sm" className="rounded-xl"><Trash2 className="h-4 w-4 mr-1" /> Delete</Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete {currentFamily.name}?</AlertDialogTitle>
+                        <AlertDialogDescription>This permanently removes the family and all of its data for everyone. This cannot be undone.</AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={() => deleteFamilyMut.mutate()}>Delete forever</AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
             </div>
           </div>
 

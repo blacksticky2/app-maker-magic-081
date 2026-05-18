@@ -206,6 +206,7 @@ function FamilyPage() {
                     </AlertDialogContent>
                   </AlertDialog>
                 )}
+              </div>
             </div>
           </div>
 

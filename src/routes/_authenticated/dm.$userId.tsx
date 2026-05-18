@@ -9,6 +9,7 @@ import { Send } from "lucide-react";
 import { Loader } from "@/components/Loader";
 import { UserAvatar } from "@/components/UserAvatar";
 import { Link } from "@tanstack/react-router";
+import { ChatImageButton } from "@/components/ChatImageButton";
 
 export const Route = createFileRoute("/_authenticated/dm/$userId")({
   component: DMConversation,
@@ -92,8 +93,11 @@ function DMConversation() {
   useEffect(() => { endRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages?.length]);
 
   const sendMut = useMutation({
-    mutationFn: async (content: string) => {
-      const { error } = await supabase.from("messages").insert({ conversation_id: convId!, sender_id: user!.id, content });
+    mutationFn: async ({ content, imageUrl }: { content?: string; imageUrl?: string }) => {
+      const { error } = await supabase.from("messages").insert({
+        conversation_id: convId!, sender_id: user!.id,
+        content: content ?? null, image_url: imageUrl ?? null,
+      });
       if (error) throw error;
     },
     onSuccess: () => setText(""),
@@ -116,7 +120,12 @@ function DMConversation() {
             <div key={m.id} className={`flex gap-2 ${mine ? "justify-end" : "justify-start"} animate-fade-up`}>
               {!mine && <UserAvatar userId={userId} username={u?.username} avatarUrl={u?.avatar_url} size="sm" linkToProfile />}
               <div className={`max-w-[75%] rounded-2xl px-4 py-2 ${mine ? "gradient-hero text-white" : "bg-muted"}`}>
-                <p className="text-sm whitespace-pre-wrap break-words">{m.content}</p>
+                {m.image_url && (
+                  <a href={m.image_url} target="_blank" rel="noreferrer">
+                    <img src={m.image_url} alt="" className="rounded-xl max-h-64 object-cover mb-1" loading="lazy" />
+                  </a>
+                )}
+                {m.content && <p className="text-sm whitespace-pre-wrap break-words">{m.content}</p>}
               </div>
               {mine && <UserAvatar userId={user!.id} username={me?.username} avatarUrl={me?.avatar_url} size="sm" />}
             </div>
@@ -124,7 +133,8 @@ function DMConversation() {
         })}
         <div ref={endRef} />
       </div>
-      <form onSubmit={(e) => { e.preventDefault(); if (text.trim() && convId) sendMut.mutate(text.trim()); }} className="border-t border-border/40 p-3 flex gap-2">
+      <form onSubmit={(e) => { e.preventDefault(); if (text.trim() && convId) sendMut.mutate({ content: text.trim() }); }} className="border-t border-border/40 p-3 flex gap-2">
+        <ChatImageButton onUploaded={(url) => convId && sendMut.mutate({ imageUrl: url })} />
         <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="Type a message…" className="rounded-xl" />
         <Button type="submit" size="icon" className="rounded-xl gradient-hero text-white" disabled={!text.trim()}><Send className="h-4 w-4" /></Button>
       </form>

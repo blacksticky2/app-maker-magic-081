@@ -2,13 +2,14 @@ import { createContext, useContext, useEffect, useState, type ReactNode } from "
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "./use-auth";
 
-export type Family = { id: string; name: string; avatar_url: string | null; banner_url: string | null; created_by: string };
+export type Family = { id: string; name: string; avatar_url: string | null; banner_url: string | null; created_by: string; owner_id: string };
 type FamilyMember = { family: Family; role: string; custom_role_name: string | null; is_admin: boolean };
 
 type Ctx = {
   families: FamilyMember[];
   currentFamily: Family | null;
   isAdmin: boolean;
+  isOwner: boolean;
   setCurrentFamilyId: (id: string) => void;
   refresh: () => Promise<void>;
   loading: boolean;
@@ -30,7 +31,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     }
     const { data } = await supabase
       .from("family_members")
-      .select("role, custom_role_name, is_admin, family:families(id, name, avatar_url, banner_url, created_by)")
+      .select("role, custom_role_name, is_admin, family:families(id, name, avatar_url, banner_url, created_by, owner_id)")
       .eq("user_id", user.id);
     const list = ((data as unknown as FamilyMember[]) || []).filter((m) => m.family);
     setFamilies(list);
@@ -55,6 +56,7 @@ export function FamilyProvider({ children }: { children: ReactNode }) {
     families,
     currentFamily: current?.family ?? null,
     isAdmin: !!current?.is_admin,
+    isOwner: current?.family?.owner_id === user?.id,
     setCurrentFamilyId,
     refresh: load,
     loading,

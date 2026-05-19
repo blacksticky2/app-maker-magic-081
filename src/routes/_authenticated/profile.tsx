@@ -23,6 +23,9 @@ export const Route = createFileRoute("/_authenticated/profile")({
 function ProfileHub() {
   const { profile } = useAuth();
   const { families, refresh } = useCurrentFamily();
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  // If a child route is active (e.g. /profile/$userId), render only the child
+  if (pathname !== "/profile" && pathname !== "/profile/") return <Outlet />;
   if (!profile) return null;
   return (
     <div className="max-w-4xl mx-auto space-y-5">

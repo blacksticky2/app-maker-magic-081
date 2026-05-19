@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { ThemeProvider } from "@/hooks/use-theme";
 import { AuthProvider } from "@/hooks/use-auth";
 import { FamilyProvider } from "@/hooks/use-current-family";
+import { PresenceProvider } from "@/hooks/use-presence";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -117,9 +118,11 @@ function RootComponent() {
       <ThemeProvider>
         <AuthProvider>
           <FamilyProvider>
-            <AuthSync />
-            <Outlet />
-            <Toaster />
+            <PresenceProvider>
+              <AuthSync />
+              <Outlet />
+              <Toaster />
+            </PresenceProvider>
           </FamilyProvider>
         </AuthProvider>
       </ThemeProvider>

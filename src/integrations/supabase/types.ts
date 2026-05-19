@@ -73,6 +73,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "chores_family_fk"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "chores_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
@@ -98,6 +105,13 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "conversation_members_conversation_fk"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "conversation_members_conversation_id_fkey"
             columns: ["conversation_id"]
@@ -138,6 +152,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "conversations_family_fk"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "conversations_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
@@ -154,6 +175,7 @@ export type Database = {
           created_by: string
           id: string
           name: string
+          owner_id: string
         }
         Insert: {
           avatar_url?: string | null
@@ -162,6 +184,7 @@ export type Database = {
           created_by: string
           id?: string
           name: string
+          owner_id: string
         }
         Update: {
           avatar_url?: string | null
@@ -170,6 +193,7 @@ export type Database = {
           created_by?: string
           id?: string
           name?: string
+          owner_id?: string
         }
         Relationships: []
       }
@@ -202,6 +226,13 @@ export type Database = {
           status?: Database["public"]["Enums"]["invite_status"]
         }
         Relationships: [
+          {
+            foreignKeyName: "family_invites_family_fk"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "family_invites_family_id_fkey"
             columns: ["family_id"]
@@ -255,6 +286,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "family_members_family_fk"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "family_members_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
@@ -302,6 +340,13 @@ export type Database = {
           vehicle_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "fuel_logs_family_fk"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "fuel_logs_family_id_fkey"
             columns: ["family_id"]
@@ -369,6 +414,13 @@ export type Database = {
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "inventory_items_family_fk"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "inventory_items_family_id_fkey"
             columns: ["family_id"]
@@ -441,6 +493,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "messages_conversation_fk"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "messages_conversation_id_fkey"
             columns: ["conversation_id"]
             isOneToOne: false
@@ -499,6 +558,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "notifications_family_fk"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "notifications_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
@@ -512,9 +578,12 @@ export type Database = {
           avatar_url: string | null
           completed_chores: number
           created_at: string
+          display_name: string | null
           email: string
           id: string
+          last_seen_at: string | null
           points: number
+          status: string
           updated_at: string
           username: string
         }
@@ -522,9 +591,12 @@ export type Database = {
           avatar_url?: string | null
           completed_chores?: number
           created_at?: string
+          display_name?: string | null
           email: string
           id: string
+          last_seen_at?: string | null
           points?: number
+          status?: string
           updated_at?: string
           username: string
         }
@@ -532,9 +604,12 @@ export type Database = {
           avatar_url?: string | null
           completed_chores?: number
           created_at?: string
+          display_name?: string | null
           email?: string
           id?: string
+          last_seen_at?: string | null
           points?: number
+          status?: string
           updated_at?: string
           username?: string
         }
@@ -557,6 +632,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "reward_settings_family_fk"
+            columns: ["family_id"]
+            isOneToOne: true
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "reward_settings_family_id_fkey"
             columns: ["family_id"]
@@ -599,6 +681,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "vehicles_family_fk"
+            columns: ["family_id"]
+            isOneToOne: false
+            referencedRelation: "families"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "vehicles_family_id_fkey"
             columns: ["family_id"]
             isOneToOne: false
@@ -624,6 +713,15 @@ export type Database = {
         Args: { _family_id: string; _user_id: string }
         Returns: boolean
       }
+      is_family_owner: {
+        Args: { _family_id: string; _user_id: string }
+        Returns: boolean
+      }
+      transfer_family_ownership: {
+        Args: { _family_id: string; _new_owner: string }
+        Returns: undefined
+      }
+      update_presence: { Args: { _status: string }; Returns: undefined }
     }
     Enums: {
       chore_status:

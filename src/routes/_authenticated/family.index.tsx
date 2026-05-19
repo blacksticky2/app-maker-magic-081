@@ -265,7 +265,7 @@ function CreateFamilyDialog({ onCreated }: { onCreated: () => void }) {
   const [name, setName] = useState("");
   const create = useMutation({
     mutationFn: async () => {
-      const { error } = await supabase.from("families").insert({ name, created_by: user!.id });
+      const { error } = await supabase.from("families").insert({ name, created_by: user!.id, owner_id: user!.id });
       if (error) throw error;
     },
     onSuccess: () => { setOpen(false); setName(""); onCreated(); toast.success("Family created"); },

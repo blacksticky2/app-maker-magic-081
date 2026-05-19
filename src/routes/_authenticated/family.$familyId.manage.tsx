@@ -55,10 +55,15 @@ function ManageFamilyPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("family_invites")
-        .select("id, status, created_at, invited_user:profiles!family_invites_invited_user_id_fkey(id, username, avatar_url)")
+        .select("id, status, created_at, invited_user_id")
         .eq("family_id", familyId)
         .eq("status", "pending");
-      return data ?? [];
+      const list = data ?? [];
+      if (list.length === 0) return [] as any[];
+      const ids = list.map((i: any) => i.invited_user_id);
+      const { data: profs } = await supabase.from("profiles").select("id, username, avatar_url").in("id", ids);
+      const byId = new Map((profs ?? []).map((p: any) => [p.id, p]));
+      return list.map((iv: any) => ({ ...iv, invited_user: byId.get(iv.invited_user_id) }));
     },
   });
 

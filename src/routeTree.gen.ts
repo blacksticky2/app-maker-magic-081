@@ -27,6 +27,7 @@ import { Route as AuthenticatedDmIndexRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedProfileUserIdRouteImport } from './routes/_authenticated/profile.$userId'
 import { Route as AuthenticatedFamilyInviteRouteImport } from './routes/_authenticated/family.invite'
 import { Route as AuthenticatedDmUserIdRouteImport } from './routes/_authenticated/dm.$userId'
+import { Route as AuthenticatedFamilyFamilyIdManageRouteImport } from './routes/_authenticated/family.$familyId.manage'
 
 const AuthRoute = AuthRouteImport.update({
   id: '/auth',
@@ -121,6 +122,12 @@ const AuthenticatedDmUserIdRoute = AuthenticatedDmUserIdRouteImport.update({
   path: '/dm/$userId',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthenticatedFamilyFamilyIdManageRoute =
+  AuthenticatedFamilyFamilyIdManageRouteImport.update({
+    id: '/family/$familyId/manage',
+    path: '/family/$familyId/manage',
+    getParentRoute: () => AuthenticatedRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/profile/$userId': typeof AuthenticatedProfileUserIdRoute
   '/dm/': typeof AuthenticatedDmIndexRoute
   '/family/': typeof AuthenticatedFamilyIndexRoute
+  '/family/$familyId/manage': typeof AuthenticatedFamilyFamilyIdManageRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -159,6 +167,7 @@ export interface FileRoutesByTo {
   '/profile/$userId': typeof AuthenticatedProfileUserIdRoute
   '/dm': typeof AuthenticatedDmIndexRoute
   '/family': typeof AuthenticatedFamilyIndexRoute
+  '/family/$familyId/manage': typeof AuthenticatedFamilyFamilyIdManageRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -180,6 +189,7 @@ export interface FileRoutesById {
   '/_authenticated/profile/$userId': typeof AuthenticatedProfileUserIdRoute
   '/_authenticated/dm/': typeof AuthenticatedDmIndexRoute
   '/_authenticated/family/': typeof AuthenticatedFamilyIndexRoute
+  '/_authenticated/family/$familyId/manage': typeof AuthenticatedFamilyFamilyIdManageRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/profile/$userId'
     | '/dm/'
     | '/family/'
+    | '/family/$familyId/manage'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -220,6 +231,7 @@ export interface FileRouteTypes {
     | '/profile/$userId'
     | '/dm'
     | '/family'
+    | '/family/$familyId/manage'
   id:
     | '__root__'
     | '/'
@@ -240,6 +252,7 @@ export interface FileRouteTypes {
     | '/_authenticated/profile/$userId'
     | '/_authenticated/dm/'
     | '/_authenticated/family/'
+    | '/_authenticated/family/$familyId/manage'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -376,6 +389,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDmUserIdRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/_authenticated/family/$familyId/manage': {
+      id: '/_authenticated/family/$familyId/manage'
+      path: '/family/$familyId/manage'
+      fullPath: '/family/$familyId/manage'
+      preLoaderRoute: typeof AuthenticatedFamilyFamilyIdManageRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
   }
 }
 
@@ -405,6 +425,7 @@ interface AuthenticatedRouteChildren {
   AuthenticatedFamilyInviteRoute: typeof AuthenticatedFamilyInviteRoute
   AuthenticatedDmIndexRoute: typeof AuthenticatedDmIndexRoute
   AuthenticatedFamilyIndexRoute: typeof AuthenticatedFamilyIndexRoute
+  AuthenticatedFamilyFamilyIdManageRoute: typeof AuthenticatedFamilyFamilyIdManageRoute
 }
 
 const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
@@ -422,6 +443,8 @@ const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
   AuthenticatedFamilyInviteRoute: AuthenticatedFamilyInviteRoute,
   AuthenticatedDmIndexRoute: AuthenticatedDmIndexRoute,
   AuthenticatedFamilyIndexRoute: AuthenticatedFamilyIndexRoute,
+  AuthenticatedFamilyFamilyIdManageRoute:
+    AuthenticatedFamilyFamilyIdManageRoute,
 }
 
 const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(

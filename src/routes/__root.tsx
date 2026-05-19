@@ -118,9 +118,11 @@ function RootComponent() {
       <ThemeProvider>
         <AuthProvider>
           <FamilyProvider>
-            <AuthSync />
-            <Outlet />
-            <Toaster />
+            <PresenceProvider>
+              <AuthSync />
+              <Outlet />
+              <Toaster />
+            </PresenceProvider>
           </FamilyProvider>
         </AuthProvider>
       </ThemeProvider>

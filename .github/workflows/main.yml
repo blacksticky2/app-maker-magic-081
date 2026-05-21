@@ -1,0 +1,85 @@
+name: Build APK & IPA
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  VITE_SUPABASE_URL: "https://ogiwbcvfcosidsfhazkv.supabase.co"
+  VITE_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9naXdiY3ZmY29zaWRzZmhhekt2Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzg4NjEzNjQsImV4cCI6MjA5NDQzNzM2NH0.8f93AwxJ5vv7ZvkFwQr3KZxLmHp2nQ6vZjY8kN9pK8M"
+
+jobs:
+  build-android:
+    name: Build Android APK
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - uses: android-actions/setup-android@v3
+      - run: yes | $ANDROID_HOME/tools/bin/sdkmanager --licenses || true
+      - run: npm install
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ env.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ env.VITE_SUPABASE_ANON_KEY }}
+      - run: npx cap init --web-dir=dist || true
+      - run: npx cap add android || true
+      - run: npx cap copy && npx cap sync
+      - run: cd android && ./gradlew assembleRelease
+      - uses: actions/upload-artifact@v3
+        with:
+          name: android-apk
+          path: android/app/build/outputs/apk/release/app-release-unsigned.apk
+
+  build-ios:
+    name: Build iOS IPA
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: npm install
+      - run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ env.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ env.VITE_SUPABASE_ANON_KEY }}
+      - run: npx cap init --web-dir=dist || true
+      - run: npx cap add ios || true
+      - run: npx cap copy && npx cap sync
+      - run: cd ios/App && pod install --repo-update
+      - run: |
+          cd ios
+          xcodebuild -workspace App/App.xcworkspace -scheme App -configuration Release -derivedDataPath build -archivePath build/App.xcarchive -allowProvisioningUpdates archive || true
+          xcodebuild -exportArchive -archivePath build/App.xcarchive -exportPath build/ipa -exportOptionsPlist exportOptions.plist || true
+      - uses: actions/upload-artifact@v3
+        with:
+          name: ios-ipa
+          path: ios/build/ipa/App.ipa
+        continue-on-error: true
+
+  release:
+    needs: [build-android, build-ios]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - uses: softprops/action-gh-release@v1
+        with:
+          files: artifacts/**/*
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        if: startsWith(github.ref, 'refs/tags/')
